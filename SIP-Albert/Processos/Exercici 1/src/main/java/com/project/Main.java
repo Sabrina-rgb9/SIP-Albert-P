@@ -6,8 +6,9 @@ public class Main {
     public static void main(String[] args) throws Exception {
         ConcurrentHashMap<String, Double> compte = new ConcurrentHashMap<>();
 
-        CountDownLatch cdIni = new CountDownLatch(1);
-        CountDownLatch cdMod = new CountDownLatch(1);
+        // countdownlatch serveix per sincronitzar l'execució de les tasques
+        CountDownLatch cdIni = new CountDownLatch(1); // Per sincronitzar l'inicialitzador
+        CountDownLatch cdMod = new CountDownLatch(1); // Per sincronitzar el modificador
 
         // Tasca 1: inicialitzar el compte
         Runnable inicialitzador = () -> {
@@ -42,10 +43,14 @@ public class Main {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
+
         executor.submit(inicialitzador);
         executor.submit(modificador);
+
+        // el future ens permet obtenir el resultat del callable
         Future<Double> resultat = executor.submit(lector);
 
+        // mostrem el resultat amb .get 
         System.out.println("Resultat final presentat al client: " + resultat.get() + "€");
 
         executor.shutdown();
