@@ -1,0 +1,13 @@
+{
+  "name": "floor-is-lava",
+  "version": "1.0.0",
+  "description": "Juego de consola en Node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
