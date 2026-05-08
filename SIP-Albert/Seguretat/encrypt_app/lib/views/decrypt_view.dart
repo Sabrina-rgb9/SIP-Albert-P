@@ -27,7 +27,6 @@ class _DecryptViewState extends State<DecryptView> {
     _loadDefaultPrivateKey();
   }
 
-// Cargar clave privada por defecto (la generada por la app)
 Future<void> _loadDefaultPrivateKey() async {
   final defaultKey = await RSAManager.getDefaultPrivateKeyPath();
   if (defaultKey != null) {
@@ -47,7 +46,6 @@ Future<void> _loadDefaultPrivateKey() async {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Título
           const Text(
             'Desencriptar archivo',
             style: TextStyle(
@@ -57,7 +55,6 @@ Future<void> _loadDefaultPrivateKey() async {
           ),
           const SizedBox(height: 24),
 
-          // Selector de clave privada
           FileSelector(
             label: 'Clave privada RSA',
             value: _privateKeyPath != null
@@ -67,8 +64,9 @@ Future<void> _loadDefaultPrivateKey() async {
             onClear: _clearPrivateKey,
           ),
           const SizedBox(height: 8),
+          // CORRECCIÓN: Mensaje más adecuado para entorno móvil.
           Text(
-            'Por defecto: ~/.ssh/id_rsa',
+            'Por defecto: App Documents (private_key.pem)',
             style: TextStyle(
               fontSize: 12,
               color: Colors.grey.shade600,
@@ -77,7 +75,6 @@ Future<void> _loadDefaultPrivateKey() async {
           ),
           const SizedBox(height: 16),
 
-          // Selector de archivo a desencriptar
           FileSelector(
             label: 'Archivo a desencriptar',
             value: _inputFilePath != null
@@ -97,7 +94,6 @@ Future<void> _loadDefaultPrivateKey() async {
           ),
           const SizedBox(height: 16),
 
-          // Selector de archivo destino
           FileSaver(
             label: 'Archivo destino',
             value: _outputFilePath != null
@@ -108,7 +104,6 @@ Future<void> _loadDefaultPrivateKey() async {
           ),
           const SizedBox(height: 24),
 
-          // Botón de desencriptar
           ElevatedButton(
             onPressed: (_privateKeyPath != null && 
                         _inputFilePath != null && 
@@ -137,7 +132,6 @@ Future<void> _loadDefaultPrivateKey() async {
           ),
           const SizedBox(height: 16),
 
-          // Mensaje de estado
           if (_statusMessage != null)
             Container(
               padding: const EdgeInsets.all(12),
@@ -181,7 +175,6 @@ Future<void> _loadDefaultPrivateKey() async {
     );
   }
 
-  // Seleccionar clave privada
   Future<void> _selectPrivateKey() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -210,13 +203,14 @@ Future<void> _loadDefaultPrivateKey() async {
     });
   }
 
-  // Seleccionar archivo a desencriptar
+// Seleccionar archivo a desencriptar
   Future<void> _selectInputFile() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         dialogTitle: 'Selecciona el archivo a desencriptar',
-        allowedExtensions: ['enc'],
-        type: FileType.custom,
+        // 1. ELIMINAMOS LA LÍNEA: allowedExtensions: ['enc'],
+        // 2. CAMBIAMOS EL TIPO A FileType.any
+        type: FileType.any, 
       );
 
       if (result != null) {
@@ -226,11 +220,9 @@ Future<void> _loadDefaultPrivateKey() async {
           _inputFilePath = inputPath;
           _statusMessage = null;
           
-          // Sugerir nombre para archivo destino
           final dir = path.dirname(inputPath);
-          final filename = path.basenameWithoutExtension(inputPath);
+          final filename = path.basename(inputPath);
           
-          // Si termina en .enc, quitarlo para el destino
           if (filename.endsWith('.enc')) {
             _outputFilePath = path.join(dir, filename.substring(0, filename.length - 4));
           } else {
@@ -253,7 +245,6 @@ Future<void> _loadDefaultPrivateKey() async {
     });
   }
 
-  // Seleccionar archivo destino
   Future<void> _selectOutputFile() async {
     try {
       String? outputFile = await FilePicker.platform.saveFile(
@@ -283,7 +274,6 @@ Future<void> _loadDefaultPrivateKey() async {
     });
   }
 
-  // Desencriptar archivo
   Future<void> _decryptFile() async {
     if (_privateKeyPath == null || 
         _inputFilePath == null || 
@@ -295,20 +285,17 @@ Future<void> _loadDefaultPrivateKey() async {
     });
 
     try {
-      // Verificar que el archivo de entrada existe
       final inputFile = File(_inputFilePath!);
       if (!await inputFile.exists()) {
         throw Exception('El archivo de entrada no existe');
       }
 
-      // Desencriptar usando RSA + AES
       await RSAManager.decryptFile(
         inputFile,
         _privateKeyPath!,
         _outputFilePath!,
       );
 
-      // Verificar que el archivo se creó
       final outputFile = File(_outputFilePath!);
       if (await outputFile.exists()) {
         final size = await outputFile.length();
@@ -331,7 +318,6 @@ Future<void> _loadDefaultPrivateKey() async {
     }
   }
 
-  // Formatear tamaño de archivo
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';

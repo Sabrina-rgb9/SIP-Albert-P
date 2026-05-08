@@ -26,7 +26,6 @@ class _EncryptViewState extends State<EncryptView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Título
           const Text(
             'Encriptar archivo',
             style: TextStyle(
@@ -36,7 +35,6 @@ class _EncryptViewState extends State<EncryptView> {
           ),
           const SizedBox(height: 24),
 
-          // Selector de clave pública
           FileSelector(
             label: 'Clave pública RSA',
             value: _publicKeyPath != null
@@ -56,7 +54,6 @@ class _EncryptViewState extends State<EncryptView> {
           ),
           const SizedBox(height: 16),
 
-          // Selector de archivo a encriptar
           FileSelector(
             label: 'Archivo a encriptar',
             value: _inputFilePath != null
@@ -76,7 +73,6 @@ class _EncryptViewState extends State<EncryptView> {
           ),
           const SizedBox(height: 24),
 
-          // Botón de encriptar
           ElevatedButton(
             onPressed: (_publicKeyPath != null && _inputFilePath != null && !_isEncrypting)
                 ? _encryptFile
@@ -102,7 +98,6 @@ class _EncryptViewState extends State<EncryptView> {
           ),
           const SizedBox(height: 16),
 
-          // Mensaje de estado
           if (_statusMessage != null)
             Container(
               padding: const EdgeInsets.all(12),
@@ -146,7 +141,6 @@ class _EncryptViewState extends State<EncryptView> {
     );
   }
 
-  // Seleccionar clave pública
   Future<void> _selectPublicKey() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -175,7 +169,6 @@ class _EncryptViewState extends State<EncryptView> {
     });
   }
 
-  // Seleccionar archivo a encriptar
   Future<void> _selectInputFile() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -203,7 +196,6 @@ class _EncryptViewState extends State<EncryptView> {
     });
   }
 
-  // Encriptar archivo
   Future<void> _encryptFile() async {
     if (_publicKeyPath == null || _inputFilePath == null) return;
 
@@ -213,10 +205,10 @@ class _EncryptViewState extends State<EncryptView> {
     });
 
     try {
-      // Preguntar dónde guardar el archivo encriptado
+      // CORRECCIÓN: path.basename en lugar de basenameWithoutExtension para conservar extensión original
       String? outputFile = await FilePicker.platform.saveFile(
         dialogTitle: 'Guardar archivo encriptado',
-        fileName: '${path.basenameWithoutExtension(_inputFilePath!)}.enc',
+        fileName: '${path.basename(_inputFilePath!)}.enc',
       );
 
       if (outputFile == null) {
@@ -227,7 +219,6 @@ class _EncryptViewState extends State<EncryptView> {
         return;
       }
 
-      // Encriptar usando RSA + AES (cifrado híbrido)
       await RSAManager.encryptFile(
         File(_inputFilePath!),
         _publicKeyPath!,
